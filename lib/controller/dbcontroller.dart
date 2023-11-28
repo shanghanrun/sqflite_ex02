@@ -23,7 +23,7 @@ class DBController {
     _db = openDatabase(path, version: 1, onCreate: (db, version) {
       //!최초 데이터베이스 생성하기  initialize
       return db.execute(
-          'create table memos(id integer primary key, title text, text text, createdTime text, editedTime text)');
+          'create table memos(id text primary key, title text, text text, createdTime text, editedTime text)');
     });
     return _db;
   }

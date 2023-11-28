@@ -16,8 +16,9 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton.extended(
+          label:Text('메모추가'),
+          icon: const Icon(Icons.add),
           onPressed: () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => EditPage()));

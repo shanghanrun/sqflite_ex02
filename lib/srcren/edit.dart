@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite_ex02/controller/dbcontroller.dart';
 import 'package:sqflite_ex02/model/memo.dart';
+import 'package:uuid/uuid.dart';
+// import 'package:crypto/crypto.dart'; // sha512
+// import 'dart:convert'; // utf-8 encoding
 
 class EditPage extends StatelessWidget {
   String title = '';
@@ -51,13 +54,23 @@ class EditPage extends StatelessWidget {
 
   Future<void> saveDB() async {
     var controller = DBController();
+    var uuid = Uuid(); // 객체생성
     var memo = Memo(
-        id: 1,
+        id: uuid.v4(),
+        // id: useSha512(DateTime.now().toString()),
         title: title,
         text: text,
         createdTime: DateTime.now().toString(),
         editedTime: DateTime.now().toString());
     await controller.insertMemo(memo);
-    print(Memo);
+    print(memo);
+    var list = await controller.memos();
+    print('DB의 내용은 다음과 같습니다. \n $list');
   }
+
+  // String useSha512(String string) {
+  //   var bytes = utf8.encode(string); // seed값
+  //   var digest = sha512.convert(bytes);// 16진수 숫자값
+  //   return digest.toString();
+  // }
 }
