@@ -53,6 +53,23 @@ class DBController {
     });
   }
 
+  Future<List<Memo>> findMemo(String id) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> memoMapList =
+        await db.query('memos', where: 'id = ?', whereArgs: [id]);
+
+    return List.generate(memoMapList.length, (i) {
+      return Memo(
+        id: memoMapList[i]['id'],
+        title: memoMapList[i]['title'],
+        text: memoMapList[i]['text'],
+        createdTime: memoMapList[i]['createdTime'],
+        editedTime: memoMapList[i]['editedTime'],
+      );
+    });
+  }
+
   Future<void> clearMemos() async {
     final db = await database;
     await db.delete(tableName); // 해당테이블의 모든 데이터 삭제

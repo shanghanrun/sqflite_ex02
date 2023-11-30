@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_ex02/srcren/edit.dart';
 import 'package:sqflite_ex02/controller/dbcontroller.dart';
 import 'package:sqflite_ex02/model/memo.dart';
+import 'package:sqflite_ex02/srcren/view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -85,7 +87,12 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, i) {
                   Memo memo = snapshot.data![i];
                   return InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                        return ViewPage(id: memo.id);
+                      }));
+                    },
                     onLongPress: () async {
                       id = memo.id;
                       showAlertDialog(context);
