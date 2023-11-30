@@ -53,6 +53,11 @@ class DBController {
     });
   }
 
+  Future<void> clearMemos() async {
+    final db = await database;
+    await db.delete(tableName); // 해당테이블의 모든 데이터 삭제
+  }
+
   Future<void> updateMeom(Memo memo) async {
     final db = await database;
 

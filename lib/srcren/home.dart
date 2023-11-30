@@ -3,46 +3,51 @@ import 'package:sqflite_ex02/srcren/edit.dart';
 import 'package:sqflite_ex02/controller/dbcontroller.dart';
 import 'package:sqflite_ex02/model/memo.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final dbController = DBController();
+
+  Future<void> clearDataBase() async {
+    await dbController.clearMemos();
+    setState(() {}); // 화면 초기화 역할
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          const Padding(
-              padding: EdgeInsets.only(left: 20, top: 40, bottom: 20),
-              child: Text(
-                '메모',
-                style: TextStyle(fontSize: 36, color: Colors.blue),
-              )),
-          memoBuilder(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-          label: const Text('메모추가'),
-          icon: const Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => EditPage()));
-          }),
-    );
-  }
-
-  List<Widget> loadMemo() {
-    // 아직 무슨용도인지 모르겠다...
-    List<Widget> memoList = [];
-    memoList.add(Container(
-      color: Colors.purpleAccent,
-      height: 100,
-    ));
-    memoList.add(Container(
-      color: Colors.redAccent,
-      height: 100,
-    ));
-
-    return memoList;
+        appBar: AppBar(
+          title: const Text('메모'),
+          actions: [
+            const Text('db초기화->'),
+            IconButton(
+              iconSize: 25,
+              icon: const Icon(
+                Icons.refresh,
+                color: Colors.blue,
+              ),
+              onPressed: () {
+                clearDataBase();
+              },
+            ),
+          ],
+        ),
+        body: memoBuilder(context),
+        floatingActionButton: FloatingActionButton.extended(
+            label: const Text('메모추가'),
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const EditPage()))
+                  .then((value) {
+                setState(() {});
+              });
+            }));
   }
 
   Future<List<Memo>> getMemosFromDB() async {
@@ -51,22 +56,28 @@ class HomePage extends StatelessWidget {
     return await dbController.memos(); //List<Memo>
   }
 
-  Widget memoBuilder() {
+  Widget memoBuilder(context) {
     return FutureBuilder(
         future: getMemosFromDB(),
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.none &&
-              snap.hasData == null) {
-            return Container();
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(child: const CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('메모를 추가하세요.'));
+          } else {
+            return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, i) {
+                  Memo memo = snapshot.data![i];
+                  return ListTile(
+                    title: Text(memo.title),
+                    subtitle: Text(memo.text),
+                    trailing: Text(memo.editedTime),
+                  );
+                });
           }
-          return ListView.builder(
-              itemCount: snap.data!.length,
-              itemBuilder: (context, i) {
-                Memo memo = snap.data![i];
-                return const Column(
-                  children: [],
-                );
-              });
         });
   }
 }
