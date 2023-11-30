@@ -12,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final dbController = DBController();
+  String id = ''; // 전역변수 선언
 
   Future<void> clearDataBase() async {
     await dbController.clearMemos();
@@ -83,54 +84,95 @@ class _HomePageState extends State<HomePage> {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, i) {
                   Memo memo = snapshot.data![i];
-                  return Container(
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color.fromARGB(255, 100, 99, 99)
-                                .withOpacity(0.3),
-                            spreadRadius: 3,
-                            blurRadius: 3,
-                            offset: const Offset(0, 0)),
-                      ],
-                      color: const Color.fromARGB(255, 214, 225, 214),
-                      border: Border.all(width: 1, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment
-                              .stretch, // 영역이 좌우로 넓어지면서, 왼쪽에 붙는다.
+                  return InkWell(
+                    onTap: () {},
+                    onLongPress: () async {
+                      id = memo.id;
+                      showAlertDialog(context);
+                      // print(memo.id);
+                      // await dbController.deleteMemo(memo.id);
+                      // setState(() {}); //그러고 화면갱신
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 8),
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: const Color.fromARGB(255, 100, 99, 99)
+                                  .withOpacity(0.3),
+                              spreadRadius: 3,
+                              blurRadius: 3,
+                              offset: const Offset(0, 0)),
+                        ],
+                        color: const Color.fromARGB(255, 214, 225, 214),
+                        border: Border.all(width: 1, color: Colors.grey),
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment
+                                .stretch, // 영역이 좌우로 넓어지면서, 왼쪽에 붙는다.
 
-                          children: [
-                            Text(memo.title,
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold)),
-                            Text(memo.text,
-                                style: const TextStyle(fontSize: 20)),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.stretch, //영역을 좌우로 넓힌 후에
-                          children: [
-                            Text(
-                              ('수정: ${memo.editedTime.split('.')[0]}'),
-                              style: const TextStyle(fontSize: 17),
-                              textAlign: TextAlign.end, // align을 끝으로 한다.
-                            ),
-                          ],
-                        ),
-                      ],
+                            children: [
+                              Text(memo.title,
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold)),
+                              Text(memo.text,
+                                  style: const TextStyle(fontSize: 20)),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.stretch, //영역을 좌우로 넓힌 후에
+                            children: [
+                              Text(
+                                ('수정: ${memo.editedTime.split('.')[0]}'),
+                                style: const TextStyle(fontSize: 17),
+                                textAlign: TextAlign.end, // align을 끝으로 한다.
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 });
           }
+        });
+  }
+
+  void showAlertDialog(context) async {
+    String result = await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('삭제 경고'),
+            content: const Text('정말로 삭제하시겠습니까?\n삭제된 메모는 복구할 수 없습니다.'),
+            actions: [
+              ElevatedButton(
+                child: const Text('삭제'),
+                onPressed: () async {
+                  await dbController.deleteMemo(id);
+                  setState(() {});
+                  id = ''; // 다시 초기화
+                  Navigator.pop(context, '삭제'); // 삭제 팝업창 지우기
+                },
+              ),
+              ElevatedButton(
+                child: const Text('취소'),
+                onPressed: () {
+                  Navigator.pop(context, '취소');
+                  id = '';
+                },
+              )
+            ],
+          );
         });
   }
 }

@@ -69,7 +69,7 @@ class DBController {
     );
   }
 
-  Future<void> deleteMemo(int id) async {
+  Future<void> deleteMemo(String id) async {
     final db = await database;
     await db.delete(
       tableName,
