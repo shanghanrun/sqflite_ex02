@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
               iconSize: 25,
               icon: const Icon(
                 Icons.refresh,
-                color: Colors.blue,
+                color: Color.fromARGB(255, 29, 78, 239),
               ),
               onPressed: () {
                 clearDataBase();
