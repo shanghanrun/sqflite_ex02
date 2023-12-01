@@ -75,7 +75,7 @@ class DBController {
     await db.delete(tableName); // 해당테이블의 모든 데이터 삭제
   }
 
-  Future<void> updateMeom(Memo memo) async {
+  Future<void> updateMemo(Memo memo) async {
     final db = await database;
 
     await db.update(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite_ex02/controller/dbcontroller.dart';
 import 'package:sqflite_ex02/model/memo.dart';
+import 'package:sqflite_ex02/srcren/edit.dart';
 
 class ViewPage extends StatefulWidget {
   final String id;
@@ -18,6 +19,13 @@ class _ViewPageState extends State<ViewPage> {
   String title = '';
   String text = '';
 
+  var dbController = DBController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   void dispose() {
     titleController.dispose();
@@ -28,20 +36,31 @@ class _ViewPageState extends State<ViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(actions: [
-        IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () {
-            titleController.text = '';
-            textController.text = '';
-            FocusScope.of(context).requestFocus(titleFocus);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {},
-        ),
-      ], title: const Text('Memo page')),
+      appBar: AppBar(
+        title: const Text('Memo page'),
+        actions: [
+          // IconButton(
+          //   icon: const Icon(Icons.delete),
+          //   onPressed: () {
+          //     titleController.text = '';
+          //     textController.text = '';
+          //     FocusScope.of(context).requestFocus(titleFocus);
+          //   },
+          // ),
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => EditPage(id: widget.id)))
+                  .then((value) {
+                setState(() {});
+              });
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder(
           future: _getMemoData(), // 퓨처값 가져올 비동기 함수
           builder: (contex, snapshot) {

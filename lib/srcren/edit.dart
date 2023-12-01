@@ -1,106 +1,110 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite_ex02/controller/dbcontroller.dart';
 import 'package:sqflite_ex02/model/memo.dart';
-import 'package:uuid/uuid.dart';
-// import 'package:crypto/crypto.dart'; // sha512
-// import 'dart:convert'; // utf-8 encoding
 
 class EditPage extends StatefulWidget {
-  const EditPage({super.key});
+  final String id;
+  const EditPage({required this.id, super.key});
 
   @override
   State<EditPage> createState() => _EditPageState();
 }
 
 class _EditPageState extends State<EditPage> {
-  final titleController = TextEditingController();
-  final textController = TextEditingController();
-  final titleFocus = FocusNode();
-  final textFocus = FocusNode();
+  // BuildContext _context;
   String title = '';
   String text = '';
+  String createdTime = '';
 
-  @override
-  void dispose() {
-    titleController.dispose();
-    textController.dispose();
-    super.dispose();
-  }
+  var titleController = TextEditingController();
+  var textController = TextEditingController();
+  var dbController = DBController();
 
   @override
   Widget build(BuildContext context) {
+    // _context = context;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(actions: [
-        IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () {
-            titleController.text = '';
-            textController.text = '';
-            FocusScope.of(context).requestFocus(titleFocus);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.save),
-          // onPressed: (){saveDB();},  //saveDB를 실행해야 된다.
-          onPressed: saveDB, // 이렇게 등록해도, 등록된 함수를 나중에 실행한다.
-        ),
-      ], title: const Text('Edit page')),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: update,
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              focusNode: titleFocus,
-              autofocus: true,
-              maxLines: null,
-              style: const TextStyle(fontSize: 30, color: Colors.blue),
-              decoration: const InputDecoration(
-                hintText: '제목을 적어주세요.',
-              ),
-            ),
-            const Padding(padding: EdgeInsets.all(10)), //! sizebox처럼 사용가능
-            TextField(
-                controller: textController,
-                focusNode: textFocus,
-                autofocus: true,
-                maxLines: 10,
-                style: const TextStyle(fontSize: 30, color: Colors.blue),
-                decoration: const InputDecoration(
-                  hintText: '본문을 적어주세요.',
-                )),
-          ],
-        ),
+        child: loadBuilder(),
       ),
     );
   }
 
-  Future<void> saveDB() async {
-    title = titleController.text.trim();
-    text = textController.text.trim();
-    if (title.isEmpty) {
-      FocusScope.of(context).requestFocus(titleFocus);
-      // 제목을 입력하라는 메시지의 스낵바가 올라오는 것도 좋겠다.
-      return;
-    }
+  Future<List<Memo>> loadMemo(String id) async {
+    return await dbController.findMemo(id);
+  }
 
-    var controller = DBController();
-    var uuid = const Uuid(); // 객체생성
-    var memo = Memo(
-        id: uuid.v4(),
-        // id: useSha512(DateTime.now().toString()),
-        title: title,
-        text: text,
-        createdTime: DateTime.now().toString(),
-        editedTime: DateTime.now().toString());
-    await controller.insertMemo(memo);
-    print(memo);
-    var list = await controller.memos();
-    print('DB의 내용은 다음과 같습니다. \n $list');
-    // 저장 후에 입력 값 초기화
-    titleController.text = '';
-    textController.text = '';
-    FocusScope.of(context).requestFocus(titleFocus);
+  loadBuilder() {
+    return FutureBuilder(
+        future: loadMemo(widget.id),
+        builder: (context, snapshot) {
+          if (snapshot.data == null || snapshot.data == []) {
+            //snapshot.data!.isEmpty 에러남
+            return Container(child: const Text('데이터를 불러올 수 없습니다'));
+          } else {
+            Memo memo = snapshot.data![0]; //어떤 자료인지 추적가능하게
+            // titleController.text = memo.title; //입력란의 초기값을 넣어줌
+            // textController.text = memo.text;
+            // createdTime = memo.createdTime;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: titleController,
+                  maxLines: 2,
+                  onChanged: (String value) {
+                    setState(() {
+                      title = value;
+                    }); // 값을 업데이트하게 함.
+                  },
+                  style: const TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.w500),
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(), hintText: '제목 입력'),
+                ),
+                const Padding(padding: EdgeInsets.all(0)),
+                TextField(
+                  controller: textController,
+                  maxLines: 8,
+                  onChanged: (String value) {
+                    text = value;
+                  },
+                  style: const TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.w500),
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(), hintText: '내용 입력'),
+                ),
+              ],
+            );
+          }
+        });
+  }
+
+  void update() async {
+    // title = titleController.text;
+    // text = textController.text;
+    print('title: $title');
+    print('text : $text');
+    var editedMemo = Memo(
+      id: widget.id,
+      title: title,
+      text: text,
+      createdTime: createdTime,
+      editedTime: DateTime.now().toString(),
+    );
+
+    await dbController.updateMemo(editedMemo);
+    Navigator.pop(context);
   }
 }

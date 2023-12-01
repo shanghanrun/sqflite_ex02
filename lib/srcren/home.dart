@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite_ex02/srcren/edit.dart';
+import 'package:sqflite_ex02/srcren/write.dart';
 import 'package:sqflite_ex02/controller/dbcontroller.dart';
 import 'package:sqflite_ex02/model/memo.dart';
 import 'package:sqflite_ex02/srcren/view.dart';
@@ -52,9 +52,10 @@ class _HomePageState extends State<HomePage> {
             label: const Text('메모추가'),
             icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const EditPage()))
-                  .then((value) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const WritePage())).then((value) {
                 setState(() {});
               });
             }));
@@ -88,10 +89,13 @@ class _HomePageState extends State<HomePage> {
                   Memo memo = snapshot.data![i];
                   return InkWell(
                     onTap: () {
-                      Navigator.push(context,
-                          CupertinoPageRoute(builder: (context) {
-                        return ViewPage(id: memo.id);
-                      }));
+                      Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => ViewPage(id: memo.id)))
+                          .then((value) {
+                        setState(() {});
+                      });
                     },
                     onLongPress: () async {
                       id = memo.id;
