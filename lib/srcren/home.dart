@@ -125,12 +125,17 @@ class _HomePageState extends State<HomePage> {
                                 .stretch, // 영역이 좌우로 넓어지면서, 왼쪽에 붙는다.
 
                             children: [
-                              Text(memo.title,
-                                  style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold)),
-                              Text(memo.text,
-                                  style: const TextStyle(fontSize: 20)),
+                              Text(
+                                memo.title,
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                memo.text,
+                                style: const TextStyle(fontSize: 20),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
                           ),
                           Column(

@@ -30,6 +30,7 @@ class _EditPageState extends State<EditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(actions: [
         IconButton(
           icon: const Icon(Icons.delete),
@@ -53,6 +54,7 @@ class _EditPageState extends State<EditPage> {
               controller: titleController,
               focusNode: titleFocus,
               autofocus: true,
+              maxLines: null,
               style: const TextStyle(fontSize: 30, color: Colors.blue),
               decoration: const InputDecoration(
                 hintText: '제목을 적어주세요.',
@@ -63,6 +65,7 @@ class _EditPageState extends State<EditPage> {
                 controller: textController,
                 focusNode: textFocus,
                 autofocus: true,
+                maxLines: 10,
                 style: const TextStyle(fontSize: 30, color: Colors.blue),
                 decoration: const InputDecoration(
                   hintText: '본문을 적어주세요.',
